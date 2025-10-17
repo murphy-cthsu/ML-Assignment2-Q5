@@ -20,7 +20,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall -Wno-unused-functio
 # for git info
 include_directories(${PROJECT_BINARY_DIR}/git_info)
 
-add_subdirectory(strength_detection)
+add_subdirectory(style_detection)
 add_subdirectory(minizero)
 
 string(TOLOWER "${PROJECT_NAME}_${GAME_TYPE}" EXE_FILE_NAME)
