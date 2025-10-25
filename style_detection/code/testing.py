@@ -65,9 +65,9 @@ class style_detection:
         for _ in range(600):
             for game_id in range(100):
                 if self.testing_feature_mode == 1:
-                    features = data_loader.get_feature_and_label(rank, game_id, self.start, 0)
+                    features = data_loader.get_feature_and_label( _ , game_id, self.start, 0)
                 elif self.testing_feature_mode == 2:
-                    features = data_loader.get_random_feature_and_label(rank, game_id, self.start, 0)
+                    features = data_loader.get_random_feature_and_label( _ , game_id, self.start, 0)
 
                 # Convert features to tensor and move to GPU
                 features = torch.FloatTensor(features).view(
