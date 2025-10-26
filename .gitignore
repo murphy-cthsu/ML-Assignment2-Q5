@@ -4,6 +4,8 @@ __pycache__
 
 # configuration file
 *.cfg
-
+*.sgf
 # others
 .vscode
+*.pth
+*.zip

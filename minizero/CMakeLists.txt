@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 find_package(Torch REQUIRED)
 find_package(Boost COMPONENTS system thread iostreams)
-find_package(ale REQUIRED)
+# find_package(ale REQUIRED)  # Only needed for Atari games
 find_package(OpenCV REQUIRED)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

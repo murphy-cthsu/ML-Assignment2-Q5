@@ -11,4 +11,5 @@ target_link_libraries(
     utils
     zero
     ${TORCH_LIBRARIES}
+    /home/cthsu/miniconda3/envs/ml_hw2/lib/python3.10/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12
 )

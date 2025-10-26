@@ -1,0 +1,21 @@
+{
+  "train_dir": "test_set/query_set",
+  "config_file": "conf.cfg",
+  "max_moves": 30,
+  "num_samples": 20,
+  "hidden_channels": 64,
+  "num_blocks": 2,
+  "move_embed_dim": 64,
+  "num_heads": 4,
+  "num_transformer_layers": 2,
+  "style_embed_dim": 128,
+  "epochs": 2,
+  "batch_size": 4,
+  "lr": 0.0001,
+  "lr_decay_step": 10,
+  "lr_decay_gamma": 0.5,
+  "margin": 1.0,
+  "num_workers": 0,
+  "output_dir": "models/test_run",
+  "save_interval": 1
+}

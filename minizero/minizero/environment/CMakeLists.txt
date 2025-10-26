@@ -1,4 +1,7 @@
 file(GLOB_RECURSE SRCS *.cpp)
+# Exclude atari and chess when ALE is not available
+list(FILTER SRCS EXCLUDE REGEX ".*/atari/.*")
+list(FILTER SRCS EXCLUDE REGEX ".*/chess/.*")
 
 add_library(environment ${SRCS})
 target_include_directories(
@@ -22,6 +25,6 @@ target_link_libraries(
     environment
     config
     utils
-    ale::ale-lib
+    # ale::ale-lib  # Only needed for Atari games
     ${OpenCV_LIBS}
 )

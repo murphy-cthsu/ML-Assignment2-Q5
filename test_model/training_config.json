@@ -1,0 +1,21 @@
+{
+  "train_dir": "train_set",
+  "config_file": "conf.cfg",
+  "max_moves": 200,
+  "num_samples": 10,
+  "hidden_channels": 64,
+  "num_blocks": 2,
+  "move_embed_dim": 256,
+  "num_heads": 8,
+  "num_transformer_layers": 2,
+  "style_embed_dim": 512,
+  "epochs": 1,
+  "batch_size": 2,
+  "lr": 0.0001,
+  "lr_decay_step": 10,
+  "lr_decay_gamma": 0.5,
+  "margin": 1.0,
+  "num_workers": 0,
+  "output_dir": "test_model",
+  "save_interval": 10
+}

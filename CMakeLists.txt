@@ -1,14 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
 
+if(POLICY CMP0148)
+  cmake_policy(SET CMP0148 NEW)
+endif()
+
 project(style)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 find_package(Torch REQUIRED)
 find_package(Boost COMPONENTS system thread iostreams)
-find_package(ale REQUIRED)
+# find_package(ale REQUIRED)  # Only needed for Atari games
 find_package(OpenCV REQUIRED)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

@@ -5,7 +5,7 @@
 #include <deque>
 #include <utility>
 #include <vector>
-
+#include <stdexcept>
 namespace minizero::utils {
 
 template <typename Key, typename Value>
