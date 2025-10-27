@@ -1,0 +1,23 @@
+{
+  "train_dir": "train_set",
+  "config_file": "conf.cfg",
+  "max_moves": 75,
+  "num_samples": 1000,
+  "batch_load_size": 200,
+  "hidden_channels": 128,
+  "num_blocks": 3,
+  "move_embed_dim": 128,
+  "num_heads": 8,
+  "num_transformer_layers": 3,
+  "style_embed_dim": 256,
+  "epochs": 50,
+  "batch_size": 16,
+  "lr": 0.0003,
+  "lr_decay_step": 10,
+  "lr_decay_gamma": 0.5,
+  "margin": 1.0,
+  "val_interval": 5,
+  "num_val_players": 30,
+  "output_dir": "models/medium_lazy",
+  "save_interval": 10
+}

@@ -115,33 +115,39 @@ class StyleInference:
             for player_id in tqdm(player_ids, desc="Extracting player embeddings"):
                 game_embeddings = []
                 
-                # Sample multiple games for this player
-                attempts = 0
-                max_attempts = games_per_player * 10  # Allow more attempts
-                
-                while len(game_embeddings) < games_per_player and attempts < max_attempts:
-                    attempts += 1
+                # Sample multiple games for this player using corrected API
+                for _ in range(games_per_player):
+                    # Correct API: get_random_feature_and_label(player_num, game_id, start, is_train)
+                    game_id = 0  # Will be randomized by C++ when is_train=True
+                    start = 0
+                    is_train = True
                     
-                    # Get a random game
-                    features, label = dataset.data_loader.get_random_feature_and_label()
+                    # Get flat features from C++ API
+                    flat_features = dataset.data_loader.get_random_feature_and_label(
+                        player_id, game_id, start, is_train
+                    )
                     
-                    # Check if it's from the target player
-                    if label != player_id:
+                    # Calculate actual number of frames and reshape
+                    feature_size = 18 * 19 * 19  # 6498
+                    actual_n_frames = len(flat_features) // feature_size
+                    
+                    if actual_n_frames == 0:
                         continue
                     
-                    # Convert to tensor
-                    if not isinstance(features, np.ndarray):
-                        features = np.array(features)
+                    # Reshape to (n_frames, 18, 19, 19)
+                    features = np.array(flat_features, dtype=np.float32).reshape(actual_n_frames, 18, 19, 19)
                     
-                    # Limit moves
-                    if len(features) > max_moves:
-                        indices = np.linspace(0, len(features)-1, max_moves, dtype=int)
+                    # Limit to max_moves
+                    if actual_n_frames > max_moves:
+                        # Sample evenly distributed moves
+                        indices = np.linspace(0, actual_n_frames-1, max_moves, dtype=int)
                         features = features[indices]
                     
-                    features = torch.FloatTensor(features).unsqueeze(0).to(self.device)
+                    # Convert to tensor (add batch dimension)
+                    features_tensor = torch.FloatTensor(features).unsqueeze(0).to(self.device)
                     
                     # Get embedding
-                    embedding = self.model.get_embedding(features)
+                    embedding = self.model.get_embedding(features_tensor)
                     game_embeddings.append(embedding.cpu())
                 
                 if len(game_embeddings) == 0:
@@ -198,34 +204,40 @@ class StyleInference:
     
     def save_results(self, matches, query_ids, candidate_ids, output_file):
         """
-        Save matching results to CSV file.
-        
-        Args:
-            matches: numpy array of shape (num_query, top_k) with candidate indices
-            query_ids: list of query player IDs
-            candidate_ids: list of candidate player IDs
-            output_file: Path to output CSV file
+        Save matching results in submission format.
+        Format: id,label where both are 1-indexed player IDs
+        Sorted lexicographically by id to match submission_sample.csv format
         """
-        print(f"\nSaving results to: {output_file}")
+        # Collect all predictions
+        predictions = []
+        for query_idx, query_id in enumerate(query_ids):
+            # Get best match (rank 0) for this query
+            candidate_idx = matches[query_idx, 0]
+            candidate_id = candidate_ids[candidate_idx]
+            
+            # Convert to 1-indexed IDs (query_id+1, candidate_id+1)
+            # Assuming playerXXX.sgf files are numbered starting from 1
+            query_id_1indexed = query_id + 1
+            candidate_id_1indexed = candidate_id + 1
+            
+            predictions.append([query_id_1indexed, candidate_id_1indexed])
         
+        # Sort lexicographically by query_id (as string) to match submission_sample.csv
+        predictions_sorted = sorted(predictions, key=lambda x: str(x[0]))
+        
+        # Write to file
         with open(output_file, 'w', newline='') as f:
             writer = csv.writer(f)
             
-            # Write header
-            top_k = matches.shape[1]
-            header = ['query_id'] + [f'rank{i+1}' for i in range(top_k)]
-            writer.writerow(header)
+            # Write header for submission format
+            writer.writerow(['id', 'label'])
             
-            # Write matches
-            for query_idx, query_id in enumerate(query_ids):
-                row = [query_id]
-                for rank in range(top_k):
-                    candidate_idx = matches[query_idx, rank]
-                    candidate_id = candidate_ids[candidate_idx]
-                    row.append(candidate_id)
-                writer.writerow(row)
+            # Write sorted predictions
+            writer.writerows(predictions_sorted)
         
-        print(f"✓ Saved {len(query_ids)} query results")
+        print(f"✓ Saved {len(predictions_sorted)} predictions in submission format")
+        print(f"✓ Format: id (query player 1-indexed), label (best match candidate 1-indexed)")
+        print(f"✓ Sorted lexicographically to match submission_sample.csv")
 
 
 def main():
@@ -248,8 +260,10 @@ def main():
     # Inference parameters
     parser.add_argument('--batch_size', type=int, default=8,
                         help='Batch size for inference')
+    parser.add_argument('--games_per_player', type=int, default=10,
+                        help='Number of games to sample per player for embedding')
     parser.add_argument('--top_k', type=int, default=5,
-                        help='Number of top matches to return')
+                        help='Number of top matches to return (for debugging)')
     parser.add_argument('--device', type=str, default='cuda',
                         help='Device to run inference on')
     
@@ -269,7 +283,8 @@ def main():
     query_embeddings, query_ids = inference.extract_player_embedding(
         args.query_dir,
         max_moves=args.max_moves,
-        batch_size=args.batch_size
+        batch_size=args.batch_size,
+        games_per_player=args.games_per_player
     )
     
     # Extract candidate embeddings
@@ -279,7 +294,8 @@ def main():
     candidate_embeddings, candidate_ids = inference.extract_player_embedding(
         args.candidate_dir,
         max_moves=args.max_moves,
-        batch_size=args.batch_size
+        batch_size=args.batch_size,
+        games_per_player=args.games_per_player
     )
     
     # Match styles

@@ -1,0 +1,1 @@
+Epoch,Train Loss,Val Top-1,Val Top-5,Same Sim,Diff Sim
